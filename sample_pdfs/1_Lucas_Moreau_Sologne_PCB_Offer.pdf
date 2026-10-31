@@ -1,0 +1,279 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 4515 >>
+stream
+BT
+/F1 9.5 Tf
+13 TL
+45 795 Td
+/F2 12.5 Tf
+(UNIVERSITE D'ORLEANS - POLYTECH ORLEANS) Tj T*
+/F1 9.5 Tf
+/F2 11 Tf
+(DOSSIER DE DEMANDE DE VALIDATION DE STAGE DE FIN D'ETUDES \(PFE - 5A\)) Tj T*
+/F1 9.5 Tf
+(Document administratif et pedagogique soumis au Responsable de Specialite) Tj T*
+(Reference Dossier: PO-2026-5A-EO-0148 | Date de depot: 21 Octobre 2026) Tj T*
+(----------------------------------------------------------------------------------------) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 1 : IDENTIFICATION DE L'ETUDIANT\(E\)) Tj T*
+/F1 9.5 Tf
+(Prenom de l'etudiant : Lucas) Tj T*
+(Nom de famille : Moreau) Tj T*
+(Numero Etudiant \(INE\) : 22104892B \(Donnee personnelle protegee - RGPD\)) Tj T*
+(Adresse email personnelle : lucas.moreau99@gmail.com) Tj T*
+(Telephone mobile : +33 6 42 18 93 01) Tj T*
+(Annee d'etudes : 5th Year \(5A - Diplome d'Ingenieur Grade de Master\)) Tj T*
+(Departement / Specialite : Electronics & Optics \(Electronique et Optique - EO\)) Tj T*
+(Option de 5eme annee : Systemes Embarques et Photonique Appliquee) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 2 : IDENTIFICATION DE L'ORGANISME D'ACCUEIL \(ENTREPRISE\)) Tj T*
+/F1 9.5 Tf
+(Raison sociale de l'entreprise : Sologne PCB Services SARL) Tj T*
+(Statut juridique : Societe a Responsabilite Limitee \(SARL au capital de 45 000 EUR\)) Tj T*
+(Numero SIRET \(14 chiffres\) : 482 910 384 00019) Tj T*
+(Code NAF / APE : 2612Z - Fabrication de cartes electroniques assemblees) Tj T*
+(Effectif declare du site : 14 salaries \(11 operateurs de production, 2 chefs d'equipe, 1) Tj T*
+(gerant\)) Tj T*
+(Adresse du siege et lieu du stage : Zone Industrielle des Pins, 14 Rue de l'Industrie) Tj T*
+(Ville du stage : Romorantin-Lanthenay \(41200\), Loir-et-Cher, France) Tj T*
+(Site internet : www.sologne-pcb-services.fr) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 3 : ENCADREMENT INDUSTRIEL DANS L'ENTREPRISE) Tj T*
+/F1 9.5 Tf
+(Nom du tuteur industriel : Marc Vasseur) Tj T*
+(Fonction / Titre du tuteur : Production Workshop Supervisor \(Responsable d'Atelier) Tj T*
+(d'Assemblage\)) Tj T*
+(Formation du tuteur : BTS Electronique \(1998\) - 25 ans d'experience en production) Tj T*
+(Email professionnel du tuteur : m.vasseur@sologne-pcb-services.fr) Tj T*
+(Telephone direct : +33 2 54 76 11 80) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 4 : MODALITES ADMINISTRATIVES, DUREE ET GRATIFICATION) Tj T*
+/F1 9.5 Tf
+(Intitule officiel de l'offre : Assistant Production & Test de Cartes Electroniques) Tj T*
+(Date de debut du stage : 2027-02-01 \(1er Fevrier 2027\)) Tj T*
+(Date de fin du stage : 2027-07-30 \(30 Juillet 2027\)) Tj T*
+(Duree totale effective : 24 weeks \(24 semaines / 6 mois temps plein, 35h/semaine\)) Tj T*
+(Gratification mensuelle nette : 700 EUR / month \(conforme au minimum legal en vigueur\)) Tj T*
+(Avantages annexes : Acces au refectoire de l'atelier, remboursement transport 50%) Tj T*
+(Clause de confidentialite / NDA : Standard \(Pas d'habilitation Defense ni Huis Clos) Tj T*
+(requis\)) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 5 : PRESENTATION GENERALE DE L'ENTREPRISE D'ACCUEIL) Tj T*
+/F1 9.5 Tf
+(Fondee en 2005 a Romorantin-Lanthenay, la societe Sologne PCB Services SARL est un sous-) Tj T*
+(traitant regional specialise dans le cablage, le brasage et l'assemblage de cartes) Tj T*
+(electroniques en petites et moyennes series \(de 10 a 500 unites par lot\) pour des) Tj T*
+(clients industriels de la region Centre-Val de Loire \(secteurs agricole, domotique,) Tj T*
+(signalisation routiere et petits equipements thermiques\).) Tj T*
+(L'entreprise dispose d'une ligne de pose CMS \(Composants Montes en Surface\) semi-) Tj T*
+(automatique, d'un four a refusion, d'une vague de brasage traversant et de quatre postes) Tj T*
+(de reprise manuelle et de controle qualite fin de ligne. Sologne PCB Services ne possede) Tj T*
+(pas de bureau d'etudes interne : les schemas electriques, les routages de circuits) Tj T*
+(imprimes \(fichiers Gerber\) et les nomenclatures \(BOM\) sont integralement fournis par les) Tj T*
+(clients donneurs d'ordre.) Tj T*
+(Dans le cadre d'une hausse saisonniere des commandes de cartes de commande pour pompes) Tj T*
+(agricoles au premier semestre 2027, l'entreprise souhaite renforcer son equipe d'atelier) Tj T*
+(par l'accueil d'un stagiaire de longue duree pour fluidifier les operations d'assemblage) Tj T*
+(et de verification avant expedition.) Tj T*
+(----------------------------------------------------------------------------------------) Tj T*
+(Page 1 / 3 - Annexe Pedagogique et Administrative Polytech Orleans) Tj T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 4457 >>
+stream
+BT
+/F1 9.5 Tf
+13 TL
+45 795 Td
+/F2 12.5 Tf
+(ANNEXE PEDAGOGIQUE - DESCRIPTION DETAILLEE DE LA MISSION) Tj T*
+/F1 9.5 Tf
+/F2 11 Tf
+(Dossier : Lucas Moreau | Entreprise : Sologne PCB Services SARL) Tj T*
+/F1 9.5 Tf
+(----------------------------------------------------------------------------------------) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 6 : CONTEXTE OPERATIONNEL ET OBJECTIFS DU POSTE) Tj T*
+/F1 9.5 Tf
+(Le stagiaire sera directement rattache au Responsable d'Atelier \(M. Marc Vasseur\) au) Tj T*
+(sein du batiment principal de production situe a Romorantin-Lanthenay. L'objectif) Tj T*
+(principal du stage est d'assurer la continuite du flux de production des lots de cartes) Tj T*
+(electroniques assemblees et de reduire le delai d'attente entre la sortie du four a) Tj T*
+(refusion et la mise en carton pour expedition chez les clients.) Tj T*
+() Tj T*
+(L'organisation quotidienne du travail suit les horaires d'equipe de l'atelier de) Tj T*
+(production \(08h00 - 12h00 et 13h00 - 16h00 du lundi au vendredi\). Le stagiaire) Tj T*
+(travaillera sur un poste etabli equipe d'une loupe binoculaire, d'une station de soudage) Tj T*
+(reglable et d'appareils de mesure standards.) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 7 : DESCRIPTIF TECHNIQUE DES TACHES CONFIEES AU STAGIAIRE) Tj T*
+/F1 9.5 Tf
+(Au cours des 24 semaines de presence dans l'entreprise, les missions confiees a) Tj T*
+(l'etudiant s'articulent autour des trois axes operationnels suivants :) Tj T*
+() Tj T*
+(Axe 1 : Assemblage manuel, brasage et reprise de cartes \(environ 50% du temps\)) Tj T*
+(The intern will assist the production team with manual soldering of through-hole) Tj T*
+(components on PCB batches, visual inspection of solder joints, and basic continuity) Tj T*
+(testing using a multimeter and oscilloscope following pre-written factory test sheets.) Tj T*
+(Plus specifiquement, l'etudiant effectuera l'insertion manuelle des composants) Tj T*
+(traversants \(connecteurs borniers, condensateurs chimiques, relais electromecaniques,) Tj T*
+(transformateurs\), la coupe des pattes apres soudure et le nettoyage des residus de flux) Tj T*
+(a l'alcool isopropylique.) Tj T*
+() Tj T*
+(Axe 2 : Controle visuel et verification electrique fin de ligne \(environ 35% du temps\)) Tj T*
+(Pour chaque lot produit, le client fournit une fiche d'instruction plastifiee \('Gamme de) Tj T*
+(Controle Usine'\) indiquant les points de test a verifier sous tension :) Tj T*
+(   - Verification de l'absence de court-circuit entre les rails d'alimentation \(+24V,) Tj T*
+(    +5V, GND\) a l'aide d'un multimetre numerique en mode testeur de continuite.) Tj T*
+(   - Mise sous tension de la carte via une alimentation de laboratoire stabilisee et) Tj T*
+(    releve de la consommation de courant au repos.) Tj T*
+(   - Verification de la presence d'un signal carre d'horloge sur les points de test) Tj T*
+(    indiques sur la fiche client a l'aide d'un oscilloscope numerique 2 voies.) Tj T*
+(   - Apposition de l'etiquette verte 'CONTROLE OK' ou mise au rebut dans le bac de) Tj T*
+(    retouche.) Tj T*
+() Tj T*
+(Axe 3 : Gestion des stocks de composants et logistique d'atelier \(environ 15% du temps\)) Tj T*
+(   - Reception des colis de composants \(Farnell, Mouser, RS Components\), decompte des) Tj T*
+(    bobines CMS et enregistrement des quantites dans le tableau de suivi Excel de) Tj T*
+(    l'atelier.) Tj T*
+(   - Preparation des kits de composants \('kitting'\) dans les bacs antistatiques avant le) Tj T*
+(    lancement de chaque ordre de fabrication.) Tj T*
+(   - Rangement des fers a souder, entretien hebdomadaire des pannes de soudage et mise a) Tj T*
+(    jour du cahier de maintenance de premier niveau.) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 8 : OUTILS, LOGICIELS ET EQUIPEMENTS UTILISES) Tj T*
+/F1 9.5 Tf
+(Equipements et logiciels mis a disposition du stagiaire :) Tj T*
+(Manual soldering station, standard multimeter, 2-channel oscilloscope, Excel inventory) Tj T*
+(logs.) Tj T*
+(Note importante : Aucun logiciel de conception electronique \(CAO/DAO type Altium) Tj T*
+(Designer, Cadence\), de simulation optique \(Zemax\) ou de developpement embarque \(VHDL,) Tj T*
+(C/C++, FPGA\) n'est installe ou utilise dans l'atelier, les plans et firmwares etant la) Tj T*
+(propriete exclusive des clients externes.) Tj T*
+(----------------------------------------------------------------------------------------) Tj T*
+(Page 2 / 3 - Annexe Pedagogique et Administrative Polytech Orleans) Tj T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 3414 >>
+stream
+BT
+/F1 9.5 Tf
+13 TL
+45 795 Td
+/F2 12.5 Tf
+(CALENDRIER PREVISIONNEL ET ENGAGEMENTS REGLEMENTAIRES) Tj T*
+/F1 9.5 Tf
+/F2 11 Tf
+(Dossier : Lucas Moreau | Entreprise : Sologne PCB Services SARL) Tj T*
+/F1 9.5 Tf
+(----------------------------------------------------------------------------------------) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 9 : PLANNING PREVISIONNEL SUR 24 SEMAINES) Tj T*
+/F1 9.5 Tf
+(   - Semaines 1 a 3 \(Fevrier 2027\) : Accueil securite, habilitation electrique B0,) Tj T*
+(    formation au brasage manuel selon les criteres visuels IPC-A-610 et prise en main du) Tj T*
+(    poste de soudure.) Tj T*
+(   - Semaines 4 a 10 \(Mars - Avril 2027\) : Assemblage et soudure manuelle des composants) Tj T*
+(    traversants sur la serie de 300 cartes de commande de pompes d'irrigation \(Lot) Tj T*
+(    #2027-A4\).) Tj T*
+(   - Semaines 11 a 18 \(Mai - Juin 2027\) : Execution des tests de continuite au) Tj T*
+(    multimetre et des releves de tension sur les lots de cartes assemblees ; saisie) Tj T*
+(    quotidienne des taux de conformite dans le fichier Excel de suivi de production.) Tj T*
+(   - Semaines 19 a 24 \(Juillet 2027\) : Inventaire estival du magasin de composants) Tj T*
+(    electroniques, rangement des bobines CMS et redaction du rapport d'activite pour) Tj T*
+(    l'ecole.) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 10 : LIVRABLES ATTENDUS EN FIN DE STAGE) Tj T*
+/F1 9.5 Tf
+(   1. Fiches de suivi de production journalieres completees dans le classeur Excel de) Tj T*
+(l'atelier.) Tj T*
+(   2. Inventaire physique mis a jour des tiroirs de composants traversants et CMS.) Tj T*
+(   3. Rapport de stage decrivant le fonctionnement de l'atelier d'assemblage.) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 11 : CONDITIONS D'HYGIENE, DE SECURITE ET REGLEMENT INTERIEUR) Tj T*
+/F1 9.5 Tf
+(Conformement aux articles L.124-1 et suivants du Code de l'Education regissant les) Tj T*
+(stages en milieu professionnel :) Tj T*
+(   - Le stagiaire demeure sous statut etudiant de l'Universite d'Orleans pendant toute) Tj T*
+(    la duree du stage.) Tj T*
+(   - Le port de la blouse antistatique \(ESD\), du bracelet de mise a la terre et des) Tj T*
+(    chaussures de securite est obligatoire dans toute la zone d'assemblage.) Tj T*
+(   - Les postes de brasage sont equipes de bras d'aspiration des fumees de soudure) Tj T*
+(    conformes aux normes d'hygiene du travail.) Tj T*
+(   - En cas d'accident survenant soit au cours du travail, soit au cours du trajet,) Tj T*
+(    l'organisme d'accueil s'engage a declarer l'accident a l'Universite d'Orleans dans) Tj T*
+(    un delai de 24 heures.) Tj T*
+() Tj T*
+/F2 11 Tf
+(SECTION 12 : SIGNATURES PREALABLES A LA VALIDATION PEDAGOGIQUE) Tj T*
+/F1 9.5 Tf
+(Fait a Romorantin-Lanthenay, le 21 Octobre 2026.) Tj T*
+() Tj T*
+(Pour l'Entreprise \(Le Tuteur Industriel\) : M. Marc Vasseur - [Signe electroniquement]) Tj T*
+(L'Etudiant\(e\) \(5A Electronics & Optics\) : Lucas Moreau - [Signe electroniquement]) Tj T*
+() Tj T*
+(CADRE RESERVE A L'ADMINISTRATION DE POLYTECH ORLEANS :) Tj T*
+(Statut de la validation pedagogique par le Responsable de Departement : EN ATTENTE DE) Tj T*
+(REVUE) Tj T*
+(Verification de l'adequation avec le referentiel de competences Ingenieur 5A : A) Tj T*
+(VERIFIER) Tj T*
+(----------------------------------------------------------------------------------------) Tj T*
+(Page 3 / 3 - Annexe Pedagogique et Administrative Polytech Orleans) Tj T*
+ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000272 00000 n 
+0000000408 00000 n 
+0000004975 00000 n 
+0000005111 00000 n 
+0000009620 00000 n 
+0000009757 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+13224
+%%EOF

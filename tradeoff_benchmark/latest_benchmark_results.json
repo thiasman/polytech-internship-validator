@@ -1,0 +1,30 @@
+{
+  "arch_a_pypdf_text": {
+    "elapsed_s": 5.84,
+    "input_tokens": 3840,
+    "output_tokens": 790,
+    "total_tokens": 4630,
+    "cost_eur": 0.0026442,
+    "status": "GREEN",
+    "extracted_fields_count": 17,
+    "siret": "319 159 877 00214",
+    "duration_weeks": 24,
+    "stipend_eur": 1650,
+    "local_preproc_ms": 19.6,
+    "pii_redacted_pre_api": true
+  },
+  "arch_b_multimodal_pdf": {
+    "elapsed_s": 11.42,
+    "input_tokens": 7920,
+    "output_tokens": 815,
+    "total_tokens": 8735,
+    "cost_eur": 0.0042321,
+    "status": "GREEN",
+    "extracted_fields_count": 17,
+    "siret": "319 159 877 00214",
+    "duration_weeks": 24,
+    "stipend_eur": 1650,
+    "local_preproc_ms": 0.0,
+    "pii_redacted_pre_api": false
+  }
+}

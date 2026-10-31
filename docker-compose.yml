@@ -1,0 +1,18 @@
+services:
+  internship-ai:
+    build: .
+    container_name: polytech-internship-ai
+    ports:
+      - "8765:8765"
+    env_file:
+      - .env
+    environment:
+      - OPENAI_MODEL=gpt-6-luna
+      - OPENAI_JUDGE_MODEL=gpt-6-sol
+      - OPENAI_BASE_URL=https://eu.api.openai.com/v1
+      - ESUP_DB_HOST=mariadb-replica.univ-orleans.fr
+      - ESUP_DB_READONLY_USER=pstage_ai_ro
+    restart: unless-stopped
+    read_only: false
+    security_opt:
+      - no-new-privileges:true

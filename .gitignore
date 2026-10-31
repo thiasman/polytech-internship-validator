@@ -1,0 +1,9 @@
+# Secrets & Environment
+.env
+.venv/
+__pycache__/
+*.pyc
+.vector_store_id
+
+# Local interview prep notes (kept locally on disk, excluded from customer GitHub repo)
+docs/

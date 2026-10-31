@@ -1,0 +1,41 @@
+[
+  {
+    "id": "EVAL-04",
+    "source": "Prof. Override",
+    "name": "Lucas Moreau \u2014 Sologne PCB Services SARL (Prof. Override)",
+    "text": "Student: Lucas Moreau (5A Electronics & Optics).\nCompany: Sologne PCB Services SARL | SIRET: 482 910 384 00019\nDuration: 24 weeks | Stipend: 700 EUR/month.\nOriginal Tasks: Manual through-hole component insertion, soldering, rework, solder-joint inspection and basic continuity testing; production-line visual and electrical checks following customer-provided factory test sheets; recording conformity results; component inventory, kitting and workshop logistics. The dossier states there is no in-house design office and no autonomous design or R&D mission.\nProfessor Addendum / Override Context: Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected": "GREEN",
+    "professor_rationale": "Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected_fields": {
+      "siret_number": "482 910 384 00019",
+      "duration_weeks": 24,
+      "monthly_stipend_eur": 700.0
+    }
+  },
+  {
+    "id": "EVAL-05",
+    "source": "Prof. Override",
+    "name": "Lucas Moreau \u2014 Sologne PCB Services SARL (Prof. Override)",
+    "text": "Student: Lucas Moreau (5A Electronics & Optics).\nCompany: Sologne PCB Services SARL | SIRET: 48291038400019\nDuration: 24 weeks | Stipend: 700 EUR/month.\nOriginal Tasks: Manual insertion, soldering and rework of through-hole components; visual inspection of solder joints; continuity and basic electrical checks using prewritten factory test sheets; recording production conformity data; component inventory, kitting and workshop logistics.\nProfessor Addendum / Override Context: Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected": "GREEN",
+    "professor_rationale": "Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected_fields": {
+      "siret_number": "48291038400019",
+      "duration_weeks": 24,
+      "monthly_stipend_eur": 700.0
+    }
+  },
+  {
+    "id": "EVAL-06",
+    "source": "Prof. Override",
+    "name": "Lucas Moreau \u2014 Sologne PCB Services SARL (Prof. Override)",
+    "text": "Student: Lucas Moreau (5A Electronics & Optics).\nCompany: Sologne PCB Services SARL | SIRET: 482 910 384 00019\nDuration: 24 weeks | Stipend: 700 EUR/month.\nOriginal Tasks: Approximately 50% manual through-hole component insertion, soldering, rework and visual inspection; 35% end-of-line checks following client-provided factory test sheets (continuity, current draw and clock-signal checks, pass/fail labeling); 15% component inventory, kitting and workshop logistics. No autonomous circuit design, test-architecture design or R&D activity is specified.\nProfessor Addendum / Override Context: Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected": "GREEN",
+    "professor_rationale": "Supervisor confirmed student will design an automated FPGA/VHDL test bench in Altium Designer.",
+    "expected_fields": {
+      "siret_number": "482 910 384 00019",
+      "duration_weeks": 24,
+      "monthly_stipend_eur": 700.0
+    }
+  }
+]
