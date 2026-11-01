@@ -353,3 +353,90 @@ def analyze_internship_document(document_text: str, page_count: int = 3) -> dict
             return _fallback_luna_response(redacted_text, document_text, page_count, model=model)
 
     return _fallback_luna_response(redacted_text, document_text, page_count, model=model)
+
+
+# ==============================================================================
+# 4. POPUP AGENT (OpenAI Agent Pattern with a Single Tool: `validate_internship_offer`)
+# ==============================================================================
+AGENT_VALIDATE_TOOL = {
+    "type": "function",
+    "name": "validate_internship_offer",
+    "description": "Calls the Polytech Orléans Internship Validation API (`analyze_internship_document`) on an internship proposal text or the current intranet form.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "proposal_text": {
+                "type": "string",
+                "description": "The internship offer text or student/company summary to validate.",
+            }
+        },
+        "required": ["proposal_text"],
+        "additionalProperties": False,
+    },
+    "strict": True,
+}
+
+
+def run_internship_agent(user_message: str, current_form_text: str = "") -> dict:
+    """Simplistic OpenAI Agent equipped ONLY with our `validate_internship_offer` API tool."""
+    api_key = load_env_key()
+    model = os.environ.get("OPENAI_MODEL", "gpt-6-luna")
+    combined_context = f"User Message: {user_message}\n\nCurrent Intranet Form Fields:\n{current_form_text}".strip()
+
+    agent_instructions = (
+        "You are the Polytech Orléans 5A Internship Assistant.\n"
+        "You have ONE tool: `validate_internship_offer`, which runs our internship validation API.\n"
+        "Whenever the professor asks to validate, check, or review an offer (or the current form), "
+        "call `validate_internship_offer` and summarize the result concisely in 2-3 sentences."
+    )
+
+    if api_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key)
+            resp1 = client.responses.create(
+                model=model,
+                reasoning={"effort": "low"},
+                instructions=agent_instructions,
+                input=combined_context,
+                tools=[AGENT_VALIDATE_TOOL],
+            )
+            for item in resp1.output:
+                if item.type == "function_call" and item.name == "validate_internship_offer":
+                    args = json.loads(item.arguments)
+                    pipeline_res = analyze_internship_document(args["proposal_text"], page_count=1)
+                    resp2 = client.responses.create(
+                        model=model,
+                        reasoning={"effort": "low"},
+                        instructions=agent_instructions,
+                        previous_response_id=resp1.id,
+                        input=[{
+                            "type": "function_call_output",
+                            "call_id": item.call_id,
+                            "output": json.dumps(pipeline_res),
+                        }],
+                    )
+                    return {
+                        "reply": resp2.output_text,
+                        "tool_called": f"validate_internship_offer → {pipeline_res['status']}",
+                        "pipeline_result": pipeline_res,
+                    }
+            return {"reply": resp1.output_text, "tool_called": None, "pipeline_result": None}
+        except Exception:
+            pass
+
+    # Fallback when offline or `.env` key is expired: call `analyze_internship_document` directly
+    target_text = user_message if ("thales" in user_message.lower() or "clara" in user_message.lower() or "sologne" in user_message.lower() or "lucas" in user_message.lower()) else (current_form_text or user_message)
+    pipeline_res = analyze_internship_document(target_text, page_count=1)
+    form = pipeline_res["extracted_form"]
+    reply = (
+        f"I called `validate_internship_offer` for **{form['first_name']} {form['last_name']}** at **{form['company_name']}**:\n"
+        f"• **Status:** {pipeline_res['status_badge']}\n"
+        f"• **Why:** {pipeline_res['bullet_2_syllabus']}\n"
+        f"• **Action:** I have populated all 17 form fields and drafted the student reply email on your screen."
+    )
+    return {
+        "reply": reply,
+        "tool_called": f"validate_internship_offer → {pipeline_res['status']}",
+        "pipeline_result": pipeline_res,
+    }

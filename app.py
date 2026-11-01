@@ -9,6 +9,7 @@ from openai_engine import (
     analyze_internship_document,
     extract_text_from_pdf_bytes,
     load_env_key,
+    run_internship_agent,
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -581,183 +582,152 @@ HTML_PAGE = r"""<!DOCTYPE html>
       border-top: 1px solid #eef2f6;
     }
 
-    /* Step 2 & 3: Professor Admin Agent (ChatGPT Edu Tab) */
-    .nav-badge-new {
-      background: #0ea5e9;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 99px;
-      margin-left: 6px;
-      vertical-align: middle;
-      letter-spacing: 0.4px;
+    /* Floating Bottom-Right Agent Popup Widget */
+    .agent-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: #ffffff;
+      border: 2px solid #38bdf8;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 51, 102, 0.28);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      transition: transform 0.15s, background 0.15s;
     }
-    .agent-tools-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
+    .agent-fab:hover {
+      background: var(--blue);
+      transform: translateY(-2px);
     }
-    .agent-tool-card {
+    .agent-popup {
+      position: fixed;
+      bottom: 82px;
+      right: 24px;
+      width: 380px;
+      height: 490px;
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-top: 3px solid var(--blue);
-      border-radius: 7px;
-      padding: 13px 15px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      border-radius: 12px;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.22);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
     }
-    .agent-tool-header {
+    .agent-popup.open {
+      display: flex;
+    }
+    .agent-popup-header {
+      background: var(--navy);
+      color: #ffffff;
+      padding: 12px 15px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
+      border-bottom: 2px solid #009fe3;
     }
-    .agent-tool-name {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px;
+    .agent-popup-title {
+      font-size: 13.5px;
       font-weight: 700;
-      color: var(--navy);
-    }
-    .tool-pill {
-      font-size: 10.5px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 10px;
-      text-transform: uppercase;
-    }
-    .tool-pill.live {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
-    }
-    .tool-pill.mock {
-      background: #e0f2fe;
-      color: #075985;
-      border: 1px solid #7dd3fc;
-    }
-    .agent-tool-desc {
-      font-size: 12px;
-      color: #475569;
-      line-height: 1.4;
-    }
-    .scenario-bar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
+      flex-direction: column;
+      gap: 2px;
     }
-    .scenario-btn {
-      background: #f0f7ff;
+    .agent-popup-sub {
+      font-size: 11px;
+      color: #bae6fd;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 500;
+    }
+    .agent-popup-close {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .agent-popup-close:hover { color: #ffffff; }
+    .agent-quick-chips {
+      padding: 8px 12px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .agent-chip {
+      background: #ffffff;
       border: 1px solid #93c5fd;
       color: var(--navy);
-      padding: 8px 13px;
-      border-radius: 6px;
-      font-size: 12.5px;
+      padding: 4px 9px;
+      border-radius: 99px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
-      text-align: left;
     }
-    .scenario-btn:hover {
-      background: #e0effe;
-      border-color: var(--blue);
-    }
-    .chat-window {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 18px;
-      min-height: 360px;
-      max-height: 560px;
+    .agent-chip:hover { background: #e0f2fe; }
+    .agent-popup-messages {
+      flex: 1;
+      padding: 12px;
       overflow-y: auto;
+      background: #f8fafc;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 10px;
     }
-    .chat-msg {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-width: 92%;
+    .popup-msg {
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      max-width: 90%;
+      white-space: pre-wrap;
     }
-    .chat-msg.user {
+    .popup-msg.user {
       align-self: flex-end;
-      background: var(--navy);
-      color: #fff;
-      padding: 11px 15px;
-      border-radius: 12px 12px 2px 12px;
-      font-size: 13.5px;
+      background: var(--blue);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
     }
-    .chat-msg.agent {
+    .popup-msg.agent {
       align-self: flex-start;
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      padding: 14px 18px;
-      border-radius: 2px 12px 12px 12px;
-      font-size: 13.5px;
       color: var(--text);
-      width: 100%;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      border-bottom-left-radius: 2px;
     }
-    .agent-sender {
-      font-size: 11.5px;
-      font-weight: 800;
-      color: var(--blue);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
-    }
-    .tool-trace-box {
+    .popup-tool-badge {
+      display: inline-block;
       background: #0f172a;
-      color: #e2e8f0;
-      border-radius: 6px;
-      padding: 10px 13px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11.5px;
-      margin: 6px 0 10px 0;
-      border-left: 3px solid #38bdf8;
-    }
-    .tool-trace-title {
       color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 10.5px;
       font-weight: 700;
-      margin-bottom: 4px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+    .agent-popup-input {
+      padding: 10px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
       display: flex;
-      justify-content: space-between;
+      gap: 6px;
     }
-    .agent-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 10px 0;
-      font-size: 12.5px;
-    }
-    .agent-table th {
-      background: #f1f5f9;
-      color: var(--navy);
-      text-align: left;
-      padding: 7px 10px;
-      border-bottom: 2px solid #cbd5e1;
-      font-weight: 700;
-    }
-    .agent-table td {
-      padding: 7px 10px;
-      border-bottom: 1px solid #e2e8f0;
-      vertical-align: top;
-    }
-    .chat-input-row {
-      display: flex;
-      gap: 10px;
-    }
-    .chat-input-row input {
+    .agent-popup-input input {
       flex: 1;
-      padding: 10px 14px;
-      border: 1px solid #94a3b8;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 13.5px;
+      font-size: 12.5px;
       font-family: inherit;
     }
   </style>
@@ -780,18 +750,14 @@ HTML_PAGE = r"""<!DOCTYPE html>
 
   <!-- Intranet Tabs -->
   <nav class="intranet-nav">
-    <div class="nav-tab" onclick="switchTab('intranet')">Home</div>
-    <div class="nav-tab" onclick="switchTab('intranet')">My Courses &amp; Labs</div>
-    <div class="nav-tab active" id="nav-tab-intranet" onclick="switchTab('intranet')">
-      Student Internships (PFE 5A — Step 1 Intranet)
-    </div>
-    <div class="nav-tab" id="nav-tab-agent" onclick="switchTab('agent')">
-      ✨ Professor Admin Agent (Step 2 &amp; 3: ChatGPT Edu)<span class="nav-badge-new">3 TOOLS</span>
-    </div>
+    <div class="nav-tab">Home</div>
+    <div class="nav-tab">My Courses &amp; Labs</div>
+    <div class="nav-tab active">Student Internships (PFE 5A)</div>
+    <div class="nav-tab">Academic Jury &amp; Defenses</div>
   </nav>
 
-  <!-- TAB 1: Main Intranet Content -->
-  <main class="container" id="tab-intranet">
+  <!-- Main Content -->
+  <main class="container">
     <div class="page-title-bar">
       <div>
         <h1>5th-Year Engineering Internship Validation (PFE)</h1>
@@ -1027,85 +993,41 @@ HTML_PAGE = r"""<!DOCTYPE html>
     </section>
   </main>
 
-  <!-- TAB 2: Step 2 & 3 Future Vision — Professor Admin Agent (ChatGPT Edu Workspace) -->
-  <main class="container" id="tab-agent" style="display:none;">
-    <div class="page-title-bar">
-      <div>
-        <h1>✨ Polytech 5A Professor Admin Agent — ChatGPT Edu Workspace (Step 2 &amp; 3 Vision)</h1>
-        <p>One conversational Custom GPT (<code>@Polytech 5A Coordinator</code>) orchestrating 3 administrative OpenAPI tools across the 6-month PFE lifecycle.</p>
+  <!-- Floating Bottom-Right Agent Button & Popup Chat Window -->
+  <button class="agent-fab" onclick="toggleAgentPopup()">
+    <span>💬 Ask Internship Agent</span>
+  </button>
+
+  <div class="agent-popup" id="agent-popup">
+    <div class="agent-popup-header">
+      <div class="agent-popup-title">
+        <span>🤖 Polytech Internship Agent</span>
+        <span class="agent-popup-sub">Tool: validate_internship_offer (/api/analyze)</span>
       </div>
-      <div>
-        <button class="btn" onclick="clearAgentChat()">Reset Conversation</button>
-      </div>
+      <button class="agent-popup-close" onclick="toggleAgentPopup()">✕</button>
     </div>
 
-    <!-- Connected OpenAPI Custom Actions / Tools Bar -->
-    <div class="agent-tools-grid">
-      <div class="agent-tool-card">
-        <div class="agent-tool-header">
-          <span class="agent-tool-name">1. validate_internship_offer</span>
-          <span class="tool-pill live">● Live Tool (Step 1)</span>
-        </div>
-        <div class="agent-tool-desc">
-          Calls <code>POST /api/analyze-pdf</code> (<code>gpt-6-luna</code> + <code>check_school_db</code> + <code>web_search</code> + <code>file_search</code>) to validate 5A PFE agreements.
-        </div>
-      </div>
-
-      <div class="agent-tool-card">
-        <div class="agent-tool-header">
-          <span class="agent-tool-name">2. schedule_defense_jury</span>
-          <span class="tool-pill mock">● Mock Action (Step 2)</span>
-        </div>
-        <div class="agent-tool-desc">
-          Matches 2 Electronics &amp; Optics professors + room for September oral defenses and enforces Defense NDA (<em>Huis clos</em>) clearance.
-        </div>
-      </div>
-
-      <div class="agent-tool-card">
-        <div class="agent-tool-header">
-          <span class="agent-tool-name">3. check_midterm_followup</span>
-          <span class="tool-pill mock">● Mock Action (Step 2)</span>
-        </div>
-        <div class="agent-tool-desc">
-          Runs the Month-1 3-question pulse check with student &amp; industrial tutor to catch "bait-and-switch" technician tasks early.
-        </div>
-      </div>
+    <div class="agent-quick-chips">
+      <button class="agent-chip" onclick="sendPopupMessage('Validate Clara Chêne Thales LiDAR offer')">
+        ▶ Validate Clara (Thales)
+      </button>
+      <button class="agent-chip" onclick="sendPopupMessage('Validate Lucas Moreau Sologne PCB offer')">
+        ▶ Validate Lucas (Sologne PCB)
+      </button>
+      <button class="agent-chip" onclick="sendPopupMessage('Validate the current intranet form fields')">
+        ▶ Check Current Form
+      </button>
     </div>
 
-    <!-- Interactive ChatGPT Edu Workspace Card -->
-    <section class="card">
-      <div style="margin-bottom: 10px; font-size: 12.5px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.4px;">
-        1-Click Demo Prompts (Click to trigger multi-tool orchestration):
-      </div>
-      <div class="scenario-bar">
-        <button class="scenario-btn" onclick="runAgentScenario('chain_validate_and_jury')">
-          ▶ <strong>Tool 1 + Tool 2 (Chain):</strong> Validate Clara's Thales LiDAR PDF &amp; Schedule September Defense Jury (Defense NDA)
-        </button>
-        <button class="scenario-btn" onclick="runAgentScenario('midterm_audit')">
-          ▶ <strong>Tool 3 (Month-1 Pulse Check):</strong> Audit 12 Active 5A Interns for "Bait-and-Switch" Mission Drift
-        </button>
-        <button class="scenario-btn" onclick="runAgentScenario('batch_jury')">
-          ▶ <strong>Tool 2 (Batch Jury Match):</strong> Assign September Defense Juries &amp; Rooms for Approved 5A Cohort
-        </button>
-      </div>
+    <div class="agent-popup-messages" id="agent-popup-messages">
+      <div class="popup-msg agent">Bonjour Prof. Canales! I am an OpenAI Agent connected to your <code>validate_internship_offer</code> API tool. Ask me to validate an offer or check the current form.</div>
+    </div>
 
-      <div class="chat-window" id="agent-chat-window">
-        <div class="chat-msg agent">
-          <div class="agent-sender">🤖 @Polytech 5A Internship Coordinator (ChatGPT Edu Custom GPT)</div>
-          <div>
-            Bonjour Prof. Canales. I am connected to your <strong>Polytech Orléans 5A Electronics &amp; Optics</strong> workspace via OAuth Service Account.<br/>
-            I can chain <strong>Tool 1 (<code>validate_internship_offer</code>)</strong>, <strong>Tool 2 (<code>schedule_defense_jury</code>)</strong>, and <strong>Tool 3 (<code>check_midterm_followup</code>)</strong> in a single conversation while keeping you in the loop before sending any external emails or calendar invites. Select a scenario above or type a request below.
-          </div>
-        </div>
-      </div>
-
-      <div class="chat-input-row">
-        <input type="text" id="agent-custom-input" placeholder="Ask @Polytech 5A Coordinator to validate an offer, schedule a defense jury, or run a Month-1 mid-term check..." onkeydown="if(event.key==='Enter') sendCustomAgentPrompt()" />
-        <button class="btn btn-primary" onclick="sendCustomAgentPrompt()">Send to Agent</button>
-      </div>
-      <div class="toast-msg" id="agent-toast"></div>
-    </section>
-  </main>
+    <div class="agent-popup-input">
+      <input type="text" id="agent-popup-input" placeholder="Ask agent to validate an offer..." onkeydown="if(event.key==='Enter') sendPopupMessage()" />
+      <button class="btn btn-primary" onclick="sendPopupMessage()">Send</button>
+    </div>
+  </div>
 
   <script>
     const FORM_FIELDS = [
@@ -1384,120 +1306,51 @@ HTML_PAGE = r"""<!DOCTYPE html>
         "Run <code>./.venv/bin/python eval_pipeline.py</code> to test it with <code>gpt-6-luna</code> + <code>gpt-6-sol</code> (LLM-as-a-Judge).";
     }
 
-    // --- TAB SWITCHING & STEP 2/3 PROFESSOR ADMIN AGENT ---
-    function switchTab(tabName) {
-      const intranetTab = document.getElementById("tab-intranet");
-      const agentTab = document.getElementById("tab-agent");
-      const navIntranet = document.getElementById("nav-tab-intranet");
-      const navAgent = document.getElementById("nav-tab-agent");
-
-      if (tabName === "agent") {
-        intranetTab.style.display = "none";
-        agentTab.style.display = "block";
-        navIntranet.classList.remove("active");
-        navAgent.classList.add("active");
-      } else {
-        intranetTab.style.display = "block";
-        agentTab.style.display = "none";
-        navIntranet.classList.add("active");
-        navAgent.classList.remove("active");
-      }
+    // --- FLOATING POPUP AGENT (Single Tool: validate_internship_offer) ---
+    function toggleAgentPopup() {
+      const popup = document.getElementById("agent-popup");
+      popup.classList.toggle("open");
     }
 
-    function clearAgentChat() {
-      const win = document.getElementById("agent-chat-window");
-      win.innerHTML = `
-        <div class="chat-msg agent">
-          <div class="agent-sender">🤖 @Polytech 5A Internship Coordinator (ChatGPT Edu Custom GPT)</div>
-          <div>
-            Bonjour Prof. Canales. I am connected to your <strong>Polytech Orléans 5A Electronics &amp; Optics</strong> workspace via OAuth Service Account.<br/>
-            I can chain <strong>Tool 1 (<code>validate_internship_offer</code>)</strong>, <strong>Tool 2 (<code>schedule_defense_jury</code>)</strong>, and <strong>Tool 3 (<code>check_midterm_followup</code>)</strong> in a single conversation while keeping you in the loop before sending any external emails or calendar invites. Select a scenario above or type a request below.
-          </div>
-        </div>
-      `;
-      const toast = document.getElementById("agent-toast");
-      toast.className = "toast-msg";
-      toast.textContent = "";
-    }
+    async function sendPopupMessage(presetText) {
+      const input = document.getElementById("agent-popup-input");
+      const text = (presetText || input.value || "").trim();
+      if (!text) return;
+      if (!presetText) input.value = "";
 
-    async function runAgentScenario(scenarioKey, customPromptText) {
-      const win = document.getElementById("agent-chat-window");
-      const prompts = {
-        "chain_validate_and_jury": "@Polytech 5A Coordinator: Validate Clara Chêne's Thales LAS France LiDAR offer and schedule her September oral defense jury (respecting any Defense NDA / Huis clos).",
-        "midterm_audit": "@Polytech 5A Coordinator: Run the Month-1 mid-term pulse check across my 12 active 5A Electronics & Optics interns and flag any mission drift.",
-        "batch_jury": "@Polytech 5A Coordinator: Generate the September defense jury schedule and room assignments for all approved 5A Optoelectronics & FPGA interns."
-      };
-      const userText = customPromptText || prompts[scenarioKey] || scenarioKey;
-
+      const msgBox = document.getElementById("agent-popup-messages");
       const userDiv = document.createElement("div");
-      userDiv.className = "chat-msg user";
-      userDiv.textContent = userText;
-      win.appendChild(userDiv);
+      userDiv.className = "popup-msg user";
+      userDiv.textContent = text;
+      msgBox.appendChild(userDiv);
 
       const loadingDiv = document.createElement("div");
-      loadingDiv.className = "chat-msg agent";
-      loadingDiv.innerHTML = `
-        <div class="agent-sender"><span class="spinner" style="width:13px;height:13px;border-width:2px;"></span> Orchestrating OpenAPI Custom Actions...</div>
-        <div style="color:#64748b;font-size:12.5px;">Executing tools under scoped university Service Account...</div>
-      `;
-      win.appendChild(loadingDiv);
-      win.scrollTop = win.scrollHeight;
+      loadingDiv.className = "popup-msg agent";
+      loadingDiv.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span> Calling <code>validate_internship_offer</code>...';
+      msgBox.appendChild(loadingDiv);
+      msgBox.scrollTop = msgBox.scrollHeight;
+
+      const currentForm = FORM_FIELDS.map(k => {
+        const el = document.getElementById("f_" + k);
+        return k + ": " + (el ? el.value : "");
+      }).join("\n");
 
       const resp = await fetch("/api/agent-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: scenarioKey, prompt: userText })
+        body: JSON.stringify({ message: text, current_form: currentForm })
       });
       const data = await resp.json();
 
-      const tracesHtml = (data.tool_calls || []).map(tc => `
-        <div class="tool-trace-box">
-          <div class="tool-trace-title">
-            <span>⚡ Custom Action Executed: ${tc.tool_name}</span>
-            <span style="color:#86efac;">${tc.badge}</span>
-          </div>
-          <div style="color:#94a3b8;margin-bottom:3px;">Args: ${tc.args_json}</div>
-          <div style="color:#e2e8f0;">Result: ${tc.result_summary}</div>
-        </div>
-      `).join("");
-
-      loadingDiv.innerHTML = `
-        <div class="agent-sender">🤖 @Polytech 5A Internship Coordinator — ${data.mode_badge || "Multi-Tool Execution Complete"}</div>
-        ${tracesHtml}
-        <div style="line-height:1.5;">${data.reply_html}</div>
-        <div style="margin-top:12px; padding-top:10px; border-top:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-          <span style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">Human-in-the-Loop Confirmation Required:</span>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-success" onclick="approveAgentAction('${data.confirm_label || "Action Approved & Dispatched"}')">
-              ✓ ${data.confirm_button || "Approve & Dispatch Calendar Invites"}
-            </button>
-          </div>
-        </div>
-      `;
-      win.scrollTop = win.scrollHeight;
-    }
-
-    function sendCustomAgentPrompt() {
-      const input = document.getElementById("agent-custom-input");
-      const val = (input.value || "").trim();
-      if (!val) return;
-      input.value = "";
-      const lower = val.toLowerCase();
-      let scenario = "custom";
-      if (lower.includes("clara") || lower.includes("thales") || lower.includes("validate")) {
-        scenario = "chain_validate_and_jury";
-      } else if (lower.includes("mid") || lower.includes("month") || lower.includes("drift") || lower.includes("lucas")) {
-        scenario = "midterm_audit";
-      } else if (lower.includes("jury") || lower.includes("defense") || lower.includes("schedule") || lower.includes("september")) {
-        scenario = "batch_jury";
+      if (data.pipeline_result) {
+        renderPipelineResponse(data.pipeline_result, "Agent Tool Call (validate_internship_offer)");
       }
-      runAgentScenario(scenario, val);
-    }
 
-    function approveAgentAction(label) {
-      const toast = document.getElementById("agent-toast");
-      toast.className = "toast-msg info";
-      toast.innerHTML = "✓ <strong>Professor Confirmation Recorded:</strong> " + label + " (Synced with Polytech Orléans Intranet & Calendar).";
+      const badgeHtml = data.tool_called
+        ? `<div class="popup-tool-badge">⚡ Tool: ${data.tool_called}</div><br/>`
+        : "";
+      loadingDiv.innerHTML = badgeHtml + (data.reply || "").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      msgBox.scrollTop = msgBox.scrollHeight;
     }
   </script>
 </body>
@@ -1583,96 +1436,10 @@ class IntranetHandler(BaseHTTPRequestHandler):
             return
 
         if self.path == "/api/agent-chat":
-            scenario = payload.get("scenario", "chain_validate_and_jury")
-            if scenario == "chain_validate_and_jury":
-                self._send_json({
-                    "mode_badge": "Chained Tool 1 + Tool 2 (OpenAPI Custom Actions)",
-                    "tool_calls": [
-                        {
-                            "tool_name": "validate_internship_offer (POST /api/analyze-pdf)",
-                            "badge": "✓ LIVE TOOL 1 (GREEN)",
-                            "args_json": '{"student": "Clara Chêne", "company": "Thales LAS France SAS", "siret": "319 159 877 00045", "duration_weeks": 24, "stipend_eur": 1450}',
-                            "result_summary": 'status="GREEN", syllabus_match="5A Optoelectronics & Embedded FPGA (Zemax + Vivado VHDL)", confidentiality="Defense NDA (Huis clos)"',
-                        },
-                        {
-                            "tool_name": "schedule_defense_jury (POST /api/schedule-jury)",
-                            "badge": "✓ MOCK TOOL 2 (MATCHED)",
-                            "args_json": '{"student": "Clara Chêne", "track": "Optoelectronics & FPGA", "nda_huis_clos": true, "preferred_window": "2027-09-13/2027-09-17"}',
-                            "result_summary": 'jury_chair="Prof. M. Canales", second_examiner="Prof. S. Dubois (Photonics)", slot="Tue 14 Sept 2027, 10:00–11:00", room="Salle E-204 (Cleared Huis Clos)"',
-                        },
-                    ],
-                    "reply_html": (
-                        "<strong>1. Internship Validation (Tool 1 — <code>validate_internship_offer</code>):</strong><br/>"
-                        "Clara Chêne's 24-week PFE at <strong>Thales LAS France SAS</strong> (1,450 EUR/month) is validated as <strong><span style='color:#166534;'>GREEN — Approved</span></strong>. "
-                        "Her tasks on Free-Space Optical (FSO) LiDAR Zernike aberration modeling in Zemax and real-time VHDL FPGA control on Xilinx Zynq UltraScale+ directly match the 5A Electronics &amp; Optics syllabus.<br/><br/>"
-                        "<strong>2. September Oral Defense Jury Scheduled (Tool 2 — <code>schedule_defense_jury</code>):</strong>"
-                        "<table class='agent-table'>"
-                        "<thead><tr><th>Student &amp; Host</th><th>Jury Members (2 Faculty)</th><th>Date &amp; Room</th><th>Defense NDA Protocol</th></tr></thead>"
-                        "<tbody><tr>"
-                        "<td><strong>Clara Chêne</strong><br/>Thales LAS France SAS</td>"
-                        "<td>• <strong>Prof. M. Canales</strong> (Academic Tutor)<br/>• <strong>Prof. S. Dubois</strong> (Optoelectronics)</td>"
-                        "<td><strong>Tue 14 Sept 2027</strong><br/>10:00 – 11:00 | Room E-204</td>"
-                        "<td><span class='tool-pill mock'>🔒 Huis Clos Required</span><br/>Public spectators excluded; Thales tutor Dr. H. Laurent invited via secure link.</td>"
-                        "</tr></tbody></table>"
-                    ),
-                    "confirm_button": "Approve PFE Agreement & Send Huis-Clos Jury Invites",
-                    "confirm_label": "Clara Chêne PFE Approved + Huis-Clos Defense Jury Invites Sent (14 Sept 2027, Room E-204)",
-                })
-                return
-
-            if scenario == "midterm_audit":
-                self._send_json({
-                    "mode_badge": "Executed Tool 3 (Month-1 Mid-Term Follow-Up)",
-                    "tool_calls": [
-                        {
-                            "tool_name": "check_midterm_followup (POST /api/midterm-check)",
-                            "badge": "✓ MOCK TOOL 3 (11 GREEN / 1 DRIFT ALERT)",
-                            "args_json": '{"cohort": "5A Electronics & Optics", "checkpoint": "Month-1 Pulse Check", "active_interns": 12}',
-                            "result_summary": 'on_track=11, flagged_drift=1 (student="Lucas Moreau", company="Sologne PCB Assembly SARL", issue="70% manual soldering vs agreed Altium/FPGA test bench")',
-                        },
-                    ],
-                    "reply_html": (
-                        "<strong>Month-1 Mid-Term Pulse Check Summary (12 Active 5A Interns):</strong><br/>"
-                        "• <strong><span style='color:#166534;'>11 / 12 Interns On Track (GREEN):</span></strong> Student &amp; industrial supervisor responses confirm active Master-level R&amp;D tool usage (Zemax, Vivado VHDL, Altium Designer).<br/>"
-                        "• <strong><span style='color:#b45309;'>1 / 12 Mission Drift Alert (YELLOW — Action Needed):</span></strong>"
-                        "<table class='agent-table'>"
-                        "<thead><tr><th>Student &amp; Company</th><th>Approved PFE Addendum</th><th>Month-1 Student Pulse Response</th><th>Recommended Intervention</th></tr></thead>"
-                        "<tbody><tr>"
-                        "<td><strong>Lucas Moreau</strong><br/>Sologne PCB Assembly SARL</td>"
-                        "<td>Design of an automated Python/FPGA PCB validation test bench in Altium Designer</td>"
-                        "<td><span style='color:#b45309;font-weight:700;'>⚠️ Drift Detected:</span> <em>\"Spent 70% of Month 1 doing manual through-hole soldering and warehouse inventory; test bench not started.\"</em></td>"
-                        "<td>Schedule a 20-min alignment call with industrial supervisor M. Bernard this Friday at 14:00 to enforce the signed engineering addendum.</td>"
-                        "</tr></tbody></table>"
-                    ),
-                    "confirm_button": "Send Alignment Call Invite to Lucas Moreau & Supervisor M. Bernard",
-                    "confirm_label": "Month-1 Intervention Call Scheduled with Sologne PCB Supervisor M. Bernard",
-                })
-                return
-
-            # Default / batch_jury scenario
-            self._send_json({
-                "mode_badge": "Executed Tool 2 (Batch Defense Jury Matcher)",
-                "tool_calls": [
-                    {
-                        "tool_name": "schedule_defense_jury (POST /api/schedule-jury)",
-                        "badge": "✓ MOCK TOOL 2 (BATCH SCHEDULED)",
-                        "args_json": '{"department": "5A Electronics & Optics", "week": "2027-09-13", "match_specialty": true, "check_nda": true}',
-                        "result_summary": 'scheduled_defenses=3, faculty_conflicts=0, huis_clos_rooms_reserved=1',
-                    },
-                ],
-                "reply_html": (
-                    "<strong>Proposed September 2027 Oral Defense Schedule (5A Electronics &amp; Optics):</strong>"
-                    "<table class='agent-table'>"
-                    "<thead><tr><th>Time Slot &amp; Room</th><th>Student &amp; Company</th><th>Matched Faculty Jury</th><th>NDA / Security Status</th></tr></thead>"
-                    "<tbody>"
-                    "<tr><td><strong>14 Sept, 10:00</strong><br/>Room E-204</td><td><strong>Clara Chêne</strong> — Thales LAS France (FSO LiDAR &amp; FPGA)</td><td>Prof. M. Canales + Prof. S. Dubois</td><td><span class='tool-pill mock'>🔒 Defense NDA (Huis Clos)</span></td></tr>"
-                    "<tr><td><strong>14 Sept, 11:15</strong><br/>Room E-202</td><td><strong>Lucas Moreau</strong> — Sologne PCB (Automated FPGA/Altium Test Bench)</td><td>Prof. M. Canales + Prof. L. Renaud</td><td><span class='tool-pill live'>Standard Open Defense</span></td></tr>"
-                    "<tr><td><strong>14 Sept, 14:00</strong><br/>Room E-202</td><td><strong>Amélie Mercier</strong> — CEA-Leti Grenoble (Silicon Photonics)</td><td>Prof. S. Dubois + Prof. A. Lefèvre</td><td><span class='tool-pill mock'>🔒 CEA Confidentiality NDA</span></td></tr>"
-                    "</tbody></table>"
-                ),
-                "confirm_button": "Publish Jury Roster & Send Calendar Invites",
-                "confirm_label": "September 2027 Defense Jury Roster Published & Calendar Invites Dispatched",
-            })
+            msg = payload.get("message", "")
+            current_form = payload.get("current_form", "")
+            agent_out = run_internship_agent(msg, current_form_text=current_form)
+            self._send_json(agent_out)
             return
 
         try:

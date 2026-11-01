@@ -22,9 +22,9 @@ flowchart LR
 ## 2. What Is in This Repository
 
 * **`app.py`** — Local web demo (`http://localhost:8765`) with:
-  * **Tab 1:** The Faculty Intranet PDF validator (auto-fills 17 form fields, shows Green/Yellow/Red status, and lets professors override decisions).
-  * **Tab 2:** A preview of a future Professor Admin Agent combining internship validation with two mock tools (defense jury scheduling and Month-1 student check-in).
-* **`openai_engine.py`** — Core logic: PDF text extraction (`pypdf`), regex masking of student personal data, prompt-injection check, OpenAI tool calls, and 17-field JSON extraction.
+  * **Main Intranet View:** The Faculty Intranet PDF validator (auto-fills 17 form fields, shows Green/Yellow/Red status, and lets professors override decisions).
+  * **Popup Internship Agent (`💬 Ask Internship Agent`):** A bottom-right chat popup built on the OpenAI Responses API that uses the validation pipeline (`validate_internship_offer`) as its single tool.
+* **`openai_engine.py`** — Core logic: PDF text extraction (`pypdf`), regex masking of student personal data, prompt-injection check, OpenAI tool calls, 17-field JSON extraction, and the single-tool conversational agent (`run_internship_agent`).
 * **`syllabus_electronics_optics.md`** — The 5th-year Electronics & Optics syllabus rules used by OpenAI `file_search` to distinguish Master-level R&D from technician work.
 * **`eval_pipeline.py`** — Automated test suite that grades field accuracy, decision accuracy, and uses `gpt-6-sol` to score syllabus alignment and email tone (1–5) on `sample_pdfs/` and `professor_feedback_evals.json`.
 * **`tradeoff_benchmark/`** — Benchmark script comparing local `pypdf` text extraction (`~5.8s`) vs. sending the raw PDF file directly to `gpt-6-luna` multimodal input (`~11.4s`).
