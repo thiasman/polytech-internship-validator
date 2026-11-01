@@ -56,3 +56,23 @@ What is mocked in this prototype vs. what University IT connects for production:
    In `openai_engine.py` (`def check_school_db`), replace the 10-line mock `SCHOOL_DB` dictionary with a read-only SQL `SELECT` query to your existing internship database to look up past internships by company SIRET number.
 3. **Connect the Intranet Form (2.0 Days):**
    Point your existing faculty intranet upload button to `POST /api/analyze-pdf` (accessible only to logged-in professors) and map the 17 returned JSON fields to your HTML form inputs.
+
+---
+
+## 5. Authentication: Prototype vs. Production
+
+In this prototype, a single `OPENAI_API_KEY` is loaded from a local `.env` file. In production at the university, authentication is split into **two separate layers** so professors never handle API keys and the OpenAI key is never exposed to the browser:
+
+```mermaid
+flowchart LR
+    P["👩‍🏫 Professor Browser"] -- "1. University Single Sign-On\n(Shibboleth / CAS session cookie)" --> I["🏛️ University Intranet Server\n(Checks 'Faculty' role)"]
+    I -- "2. Internal Network Call\n(Private Docker Bridge)" --> M["🐳 Python Validator Service"]
+    M -- "3. OpenAI Service Account Key\n(HTTPS to eu.api.openai.com)" --> O["🧠 OpenAI EU API\n(Project: polytech-pfe-5a)"]
+```
+
+| Layer | Prototype (Local Demo) | University Production System |
+| :--- | :--- | :--- |
+| **1. User Authentication (Who can use the tool?)** | Open local web page (`localhost:8765`) with no login screen. | **University Single Sign-On (CAS / RENATER Shibboleth):** Professors log into the intranet as usual. The intranet checks that their university role is **Faculty (`Responsable de Stage`)** before allowing requests to `/api/analyze-pdf`. Students cannot access this endpoint. |
+| **2. Internal Service Call (Intranet $\rightarrow$ Python Service)** | Browser calls `app.py` directly. | **Internal Server-to-Server Call:** The Python container runs on an internal university server (not open to the public internet) and only accepts requests from the university intranet backend. |
+| **3. OpenAI API Authentication (Python Service $\rightarrow$ OpenAI)** | Personal developer key stored in a local `.env` file. | **OpenAI Project Service Account Key (`sk-svcacct-...`):** Stored in the university server's secret manager (injected as an environment variable at container startup) and tied to a dedicated OpenAI Project (`polytech-pfe-5a`) rather than a person. |
+| **4. Key Security & Cost Controls** | Manual key management. | **Scoped Permissions & Hard Budget Cap:** The Service Account key is restricted to `gpt-6-luna` / `gpt-6-sol` on the **EU endpoint (`eu.api.openai.com`)**, with `store=False` (Zero Data Retention) and a hard monthly spend limit (e.g., **€20/month**). |
