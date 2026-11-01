@@ -5,6 +5,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
+from agent_demo import run_agent_turn
 from openai_engine import (
     analyze_internship_document,
     extract_text_from_pdf_bytes,
@@ -580,6 +581,155 @@ HTML_PAGE = r"""<!DOCTYPE html>
       padding-top: 12px;
       border-top: 1px solid #eef2f6;
     }
+
+    /* Floating Bottom-Right Agent Popup Widget (Backed by standalone `agent_demo.py`) */
+    .agent-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: #ffffff;
+      border: 2px solid #38bdf8;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 51, 102, 0.28);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .agent-fab:hover {
+      background: var(--blue);
+      transform: translateY(-2px);
+    }
+    .agent-popup {
+      position: fixed;
+      bottom: 82px;
+      right: 24px;
+      width: 390px;
+      height: 500px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.22);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    .agent-popup.open {
+      display: flex;
+    }
+    .agent-popup-header {
+      background: var(--navy);
+      color: #ffffff;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #009fe3;
+    }
+    .agent-popup-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .agent-popup-sub {
+      font-size: 11px;
+      color: #bae6fd;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 500;
+    }
+    .agent-popup-close {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .agent-popup-close:hover { color: #ffffff; }
+    .agent-quick-chips {
+      padding: 8px 12px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .agent-chip {
+      background: #ffffff;
+      border: 1px solid #93c5fd;
+      color: var(--navy);
+      padding: 4px 9px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .agent-chip:hover { background: #e0f2fe; }
+    .agent-popup-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .popup-msg {
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      max-width: 90%;
+      white-space: pre-wrap;
+    }
+    .popup-msg.user {
+      align-self: flex-end;
+      background: var(--blue);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+    .popup-msg.agent {
+      align-self: flex-start;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--text);
+      border-bottom-left-radius: 2px;
+    }
+    .popup-tool-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+    .agent-popup-input {
+      padding: 10px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 6px;
+    }
+    .agent-popup-input input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+    }
   </style>
 </head>
 <body>
@@ -842,6 +992,42 @@ HTML_PAGE = r"""<!DOCTYPE html>
       </div>
     </section>
   </main>
+
+  <!-- Floating Bottom-Right Agent Popup (Powered by `agent_demo.py` OpenAI Agents SDK) -->
+  <button class="agent-fab" onclick="toggleAgentPopup()">
+    <span>💬 Ask Internship Agent</span>
+  </button>
+
+  <div class="agent-popup" id="agent-popup">
+    <div class="agent-popup-header">
+      <div class="agent-popup-title">
+        <span>🤖 Polytech Internship Agent</span>
+        <span class="agent-popup-sub">agent_demo.py (OpenAI Agents SDK)</span>
+      </div>
+      <button class="agent-popup-close" onclick="toggleAgentPopup()">✕</button>
+    </div>
+
+    <div class="agent-quick-chips">
+      <button class="agent-chip" onclick="sendPopupMessage('Hello! What are the 5A rules?')">
+        👋 5A Rules
+      </button>
+      <button class="agent-chip" onclick="sendPopupMessage('Validate Clara Chêne Thales LiDAR offer')">
+        ▶ Validate Clara (Thales)
+      </button>
+      <button class="agent-chip" onclick="sendPopupMessage('Validate Lucas Moreau Sologne PCB offer')">
+        ▶ Validate Lucas (Sologne)
+      </button>
+    </div>
+
+    <div class="agent-popup-messages" id="agent-popup-messages">
+      <div class="popup-msg agent">Bonjour Prof. Canales! I am the OpenAI Agent defined in <code>agent_demo.py</code> (<code>agents.Agent</code> + <code>Runner.run_sync</code>) with a single tool: <code>@function_tool validate_internship_offer</code>. How can I help you?</div>
+    </div>
+
+    <div class="agent-popup-input">
+      <input type="text" id="agent-popup-input" placeholder="Chat or ask to validate an offer..." onkeydown="if(event.key==='Enter') sendPopupMessage()" />
+      <button class="btn btn-primary" onclick="sendPopupMessage()">Send</button>
+    </div>
+  </div>
 
   <script>
     const FORM_FIELDS = [
@@ -1119,6 +1305,58 @@ HTML_PAGE = r"""<!DOCTYPE html>
         res.eval_id + " (" + res.case_name + ")</code> in <code>professor_feedback_evals.json</code>. " +
         "Run <code>./.venv/bin/python eval_pipeline.py</code> to test it with <code>gpt-6-luna</code> + <code>gpt-6-sol</code> (LLM-as-a-Judge).";
     }
+
+    // --- FLOATING POPUP AGENT (Backed by `agent_demo.py` OpenAI Agents SDK) ---
+    let popupHistory = [];
+
+    function toggleAgentPopup() {
+      const popup = document.getElementById("agent-popup");
+      popup.classList.toggle("open");
+    }
+
+    async function sendPopupMessage(presetText) {
+      const input = document.getElementById("agent-popup-input");
+      const text = (presetText || input.value || "").trim();
+      if (!text) return;
+      if (!presetText) input.value = "";
+
+      const msgBox = document.getElementById("agent-popup-messages");
+      const userDiv = document.createElement("div");
+      userDiv.className = "popup-msg user";
+      userDiv.textContent = text;
+      msgBox.appendChild(userDiv);
+
+      const loadingDiv = document.createElement("div");
+      loadingDiv.className = "popup-msg agent";
+      loadingDiv.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span> Thinking...';
+      msgBox.appendChild(loadingDiv);
+      msgBox.scrollTop = msgBox.scrollHeight;
+
+      const currentForm = FORM_FIELDS.map(k => {
+        const el = document.getElementById("f_" + k);
+        return k + ": " + (el ? el.value : "");
+      }).join("\n");
+
+      const resp = await fetch("/api/agent-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, current_form: currentForm, history: popupHistory })
+      });
+      const data = await resp.json();
+
+      popupHistory.push({ role: "user", content: text });
+      popupHistory.push({ role: "assistant", content: data.reply || "" });
+
+      if (data.pipeline_result) {
+        renderPipelineResponse(data.pipeline_result, "OpenAI Agent Tool Call (agent_demo.py)");
+      }
+
+      const badgeHtml = data.tool_called
+        ? `<div class="popup-tool-badge">⚡ Tool: ${data.tool_called}</div><br/>`
+        : "";
+      loadingDiv.innerHTML = badgeHtml + (data.reply || "").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
   </script>
 </body>
 </html>
@@ -1200,6 +1438,14 @@ class IntranetHandler(BaseHTTPRequestHandler):
                 json.dump(existing, f, indent=2)
 
             self._send_json({"ok": True, "eval_id": eval_id, "case_name": case_name})
+            return
+
+        if self.path == "/api/agent-chat":
+            msg = payload.get("message", "")
+            current_form = payload.get("current_form", "")
+            history = payload.get("history", [])
+            agent_out = run_agent_turn(msg, current_form_text=current_form, history=history)
+            self._send_json(agent_out)
             return
 
         try:
