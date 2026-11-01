@@ -377,29 +377,43 @@ AGENT_VALIDATE_TOOL = {
 }
 
 
-def run_internship_agent(user_message: str, current_form_text: str = "") -> dict:
+def run_internship_agent(user_message: str, current_form_text: str = "", history: list | None = None) -> dict:
     """Simplistic OpenAI Agent equipped ONLY with our `validate_internship_offer` API tool."""
     api_key = load_env_key()
     model = os.environ.get("OPENAI_MODEL", "gpt-6-luna")
-    combined_context = f"User Message: {user_message}\n\nCurrent Intranet Form Fields:\n{current_form_text}".strip()
+    history = history or []
 
     agent_instructions = (
-        "You are the Polytech Orléans 5A Internship Assistant.\n"
+        "You are the Polytech Orléans 5A Internship Assistant for Prof. Mathias Canales (Electronics & Optics).\n"
+        "You can chat naturally in English or French, answer greetings, explain the 5A Electronics & Optics syllabus rules "
+        "(>=20 weeks duration, >=650 EUR/month stipend, Master's R&D design/simulation vs. technician assembly/wiring), "
+        "and answer questions about the student currently displayed on the intranet form.\n"
         "You have ONE tool: `validate_internship_offer`, which runs our internship validation API.\n"
-        "Whenever the professor asks to validate, check, or review an offer (or the current form), "
-        "call `validate_internship_offer` and summarize the result concisely in 2-3 sentences."
+        "ONLY call `validate_internship_offer` when the professor explicitly asks to validate, check, analyze, or review "
+        "an internship offer or the current form. For greetings ('hello', 'bonjour') or general questions, reply directly "
+        "in 2-3 friendly, concise sentences without calling the tool."
     )
 
     if api_key:
         try:
             from openai import OpenAI
             client = OpenAI(api_key=api_key)
+            input_messages = []
+            for turn in history[-6:]:
+                role = "user" if turn.get("role") == "user" else "assistant"
+                input_messages.append({"role": role, "content": turn.get("content", "")})
+            input_messages.append({
+                "role": "user",
+                "content": f"{user_message}\n\n[Current Intranet Form State:\n{current_form_text}]".strip(),
+            })
+
             resp1 = client.responses.create(
                 model=model,
                 reasoning={"effort": "low"},
                 instructions=agent_instructions,
-                input=combined_context,
+                input=input_messages,
                 tools=[AGENT_VALIDATE_TOOL],
+                store=False,
             )
             for item in resp1.output:
                 if item.type == "function_call" and item.name == "validate_internship_offer":
@@ -415,6 +429,7 @@ def run_internship_agent(user_message: str, current_form_text: str = "") -> dict
                             "call_id": item.call_id,
                             "output": json.dumps(pipeline_res),
                         }],
+                        store=False,
                     )
                     return {
                         "reply": resp2.output_text,
@@ -425,8 +440,76 @@ def run_internship_agent(user_message: str, current_form_text: str = "") -> dict
         except Exception:
             pass
 
-    # Fallback when offline or `.env` key is expired: call `analyze_internship_document` directly
-    target_text = user_message if ("thales" in user_message.lower() or "clara" in user_message.lower() or "sologne" in user_message.lower() or "lucas" in user_message.lower()) else (current_form_text or user_message)
+    # Fallback when offline or `.env` key is expired: decide whether to chat naturally or call the tool
+    msg_low = user_message.lower().strip()
+    validate_triggers = ("validate", "valide", "check", "analyse", "analyze", "review", "évalue", "run", "test")
+    mentions_offer = any(w in msg_low for w in ("thales", "clara", "sologne", "lucas", "hugo", "offer", "offre", "form", "formulaire", "stage", "siret"))
+    should_call_tool = any(t in msg_low for t in validate_triggers) and (mentions_offer or len(msg_low) > 25)
+
+    if not should_call_tool:
+        # Conversational response without calling the tool
+        if any(g in msg_low for g in ("hello", "hi", "hey", "bonjour", "salut", "coucou", "good morning", "good afternoon")):
+            return {
+                "reply": (
+                    "Bonjour Prof. Canales! 👋 How can I help you today?\n\n"
+                    "You can ask me questions about the **5A Electronics & Optics validation rules**, "
+                    "ask about the **current student form**, or ask me to **validate an internship offer** using my `validate_internship_offer` tool."
+                ),
+                "tool_called": None,
+                "pipeline_result": None,
+            }
+        if any(w in msg_low for w in ("rule", "règle", "syllabus", "criteria", "critère", "stipend", "gratification", "duration", "durée", "weeks", "semaines")):
+            return {
+                "reply": (
+                    "For a **5A Electronics & Optics** PFE at Polytech Orléans, we verify 3 criteria:\n"
+                    "• **Statutory Minimums:** Duration **≥ 20 weeks** and monthly stipend **≥ 650 EUR**.\n"
+                    "• **Master's R&D Syllabus Match:** Must involve autonomous engineering design/modeling (e.g., Zemax, VHDL/FPGA, Altium RF layout), not technician PCB soldering or cable wiring.\n"
+                    "• **Host Company & Supervision:** Verified active R&D entity (SIRET) with an engineering-qualified supervisor."
+                ),
+                "tool_called": None,
+                "pipeline_result": None,
+            }
+        if any(w in msg_low for w in ("who are you", "what can you do", "help", "aide", "tool", "outil", "comment ça marche", "how do you work")):
+            return {
+                "reply": (
+                    "I am the **Polytech 5A Internship Assistant** built on the OpenAI Responses API (`gpt-6-luna`).\n"
+                    "I have a single tool (`validate_internship_offer`) that extracts all 17 intranet fields, checks the school database, "
+                    "runs web & 5A syllabus search, and drafts the student reply email. Ask me to validate an offer anytime!"
+                ),
+                "tool_called": None,
+                "pipeline_result": None,
+            }
+        if "why" in msg_low or "pourquoi" in msg_low or "explain" in msg_low or "explique" in msg_low:
+            if "sologne" in current_form_text.lower() or "lucas" in current_form_text.lower() or "lucas" in msg_low:
+                return {
+                    "reply": (
+                        "**Lucas Moreau (Sologne PCB Assembly)** is flagged **YELLOW** because although the duration (22 weeks) and stipend (750 EUR) "
+                        "pass statutory minimums, the technical tasks focus on technician-level manual soldering and cable harness assembly rather than 5A Master's R&D design."
+                    ),
+                    "tool_called": None,
+                    "pipeline_result": None,
+                }
+            if "thales" in current_form_text.lower() or "clara" in current_form_text.lower() or "clara" in msg_low:
+                return {
+                    "reply": (
+                        "**Clara Chêne (Thales LAS France)** is approved **GREEN** because her 24-week, 1,650 EUR/month mission directly matches "
+                        "5A Electronics & Optics R&D (1550nm Zemax optical modeling, InGaAs APD front-end design, and Xilinx Zynq VHDL FPGA control)."
+                    ),
+                    "tool_called": None,
+                    "pipeline_result": None,
+                }
+        return {
+            "reply": (
+                "I'm here to help with **5A Electronics & Optics internship validation**! "
+                "You can ask me about our **5A syllabus & statutory rules**, ask why a student offer was approved or flagged, "
+                "or tell me to **validate an offer** (e.g., *\"Validate Clara Chêne Thales LiDAR offer\"* or *\"Validate the current form\"*)."
+            ),
+            "tool_called": None,
+            "pipeline_result": None,
+        }
+
+    # Tool invocation path
+    target_text = user_message if ("thales" in msg_low or "clara" in msg_low or "sologne" in msg_low or "lucas" in msg_low) else (current_form_text or user_message)
     pipeline_res = analyze_internship_document(target_text, page_count=1)
     form = pipeline_res["extracted_form"]
     reply = (

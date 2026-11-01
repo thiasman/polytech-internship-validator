@@ -1307,6 +1307,8 @@ HTML_PAGE = r"""<!DOCTYPE html>
     }
 
     // --- FLOATING POPUP AGENT (Single Tool: validate_internship_offer) ---
+    let popupHistory = [];
+
     function toggleAgentPopup() {
       const popup = document.getElementById("agent-popup");
       popup.classList.toggle("open");
@@ -1326,7 +1328,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
 
       const loadingDiv = document.createElement("div");
       loadingDiv.className = "popup-msg agent";
-      loadingDiv.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span> Calling <code>validate_internship_offer</code>...';
+      loadingDiv.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span> Thinking...';
       msgBox.appendChild(loadingDiv);
       msgBox.scrollTop = msgBox.scrollHeight;
 
@@ -1338,9 +1340,12 @@ HTML_PAGE = r"""<!DOCTYPE html>
       const resp = await fetch("/api/agent-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, current_form: currentForm })
+        body: JSON.stringify({ message: text, current_form: currentForm, history: popupHistory })
       });
       const data = await resp.json();
+
+      popupHistory.push({ role: "user", content: text });
+      popupHistory.push({ role: "assistant", content: data.reply || "" });
 
       if (data.pipeline_result) {
         renderPipelineResponse(data.pipeline_result, "Agent Tool Call (validate_internship_offer)");
@@ -1438,7 +1443,8 @@ class IntranetHandler(BaseHTTPRequestHandler):
         if self.path == "/api/agent-chat":
             msg = payload.get("message", "")
             current_form = payload.get("current_form", "")
-            agent_out = run_internship_agent(msg, current_form_text=current_form)
+            history = payload.get("history", [])
+            agent_out = run_internship_agent(msg, current_form_text=current_form, history=history)
             self._send_json(agent_out)
             return
 
