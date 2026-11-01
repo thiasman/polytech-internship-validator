@@ -169,7 +169,7 @@ def call_openai_luna(redacted_text: str, raw_text: str, page_count: int, api_key
         f"Step 1 — Input Guardrails (`MaskPII` + `InjectionTripwire`): Parsed {page_count} pages ({len(raw_text):,} chars); masked student INE & phone; verified 0 prompt injections."
     ]
 
-    # Turn 1: Run `gpt-6-luna` with the 3 tools (`check_school_db`, `web_search`, `file_search`)
+    # Call 1: Run `gpt-6-luna` with the 3 tools (`web_search`, `file_search`, `check_school_db`)
     response = client.responses.create(
         model=model,
         reasoning={"effort": "low"},
@@ -178,39 +178,27 @@ def call_openai_luna(redacted_text: str, raw_text: str, page_count: int, api_key
         tools=tools,
     )
 
-    while True:
-        fn_calls = [item for item in response.output if item.type == "function_call"]
-        if not fn_calls:
-            break
-        tool_outputs = []
-        for fc in fn_calls:
-            args = json.loads(fc.arguments)
+    tool_outputs = []
+    for item in response.output:
+        if item.type == "function_call":
+            args = json.loads(item.arguments)
             db_out = check_school_db(args["siret_number"], args["duration_weeks"], args["monthly_stipend_eur"])
             steps.append(
                 f"Step 2 — Tool 1 (`check_school_db`): SIRET {args['siret_number']} — Duration OK={db_out['duration_ok']}, Stipend OK={db_out['stipend_ok']} — {db_out['school_history']}"
             )
-            tool_outputs.append({"type": "function_call_output", "call_id": fc.call_id, "output": json.dumps(db_out)})
-
-        response = client.responses.create(
-            model=model,
-            reasoning={"effort": "low"},
-            instructions=instructions,
-            previous_response_id=response.id,
-            input=tool_outputs,
-            tools=tools,
-        )
+            tool_outputs.append({"type": "function_call_output", "call_id": item.call_id, "output": json.dumps(db_out)})
 
     steps.append(
         f"Step 3 — Tools 2 & 3 (`web_search` + `file_search` on `{_VECTOR_STORE_ID}`): Verified host company R&D profile and compared tasks against 5A Electronics & Optics syllabus."
     )
 
-    # Final Turn: Produce Strict JSON Schema output from all gathered tool results (tools disabled)
+    # Call 2: Send local `check_school_db` result back and enforce the Strict 17-Field JSON Schema in one step
     response = client.responses.create(
         model=model,
         reasoning={"effort": "low"},
         instructions=instructions,
         previous_response_id=response.id,
-        input="Output the final internship review using the required JSON schema.",
+        input=tool_outputs or "Output the final internship review using the required JSON schema.",
         text={"format": {"type": "json_schema", **OUTPUT_SCHEMA}},
     )
 

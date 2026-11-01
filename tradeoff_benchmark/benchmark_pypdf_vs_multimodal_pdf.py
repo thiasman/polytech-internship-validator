@@ -81,6 +81,7 @@ def run_luna_pipeline(client: OpenAI, vs_id: str, user_input_payload, model: str
     total_out_tokens = 0
     t0 = time.perf_counter()
 
+    # Call 1: Run `gpt-6-luna` with the 3 tools (`web_search`, `file_search`, `check_school_db`)
     response = client.responses.create(
         model=model,
         reasoning={"effort": "low"},
@@ -92,34 +93,20 @@ def run_luna_pipeline(client: OpenAI, vs_id: str, user_input_payload, model: str
         total_in_tokens += response.usage.input_tokens
         total_out_tokens += response.usage.output_tokens
 
-    while True:
-        fn_calls = [item for item in response.output if item.type == "function_call"]
-        if not fn_calls:
-            break
-        tool_outputs = []
-        for fc in fn_calls:
-            args = json.loads(fc.arguments)
+    tool_outputs = []
+    for item in response.output:
+        if item.type == "function_call":
+            args = json.loads(item.arguments)
             db_out = check_school_db(args["siret_number"], args["duration_weeks"], args["monthly_stipend_eur"])
-            tool_outputs.append({"type": "function_call_output", "call_id": fc.call_id, "output": json.dumps(db_out)})
+            tool_outputs.append({"type": "function_call_output", "call_id": item.call_id, "output": json.dumps(db_out)})
 
-        response = client.responses.create(
-            model=model,
-            reasoning={"effort": "low"},
-            instructions=instructions,
-            previous_response_id=response.id,
-            input=tool_outputs,
-            tools=tools,
-        )
-        if response.usage:
-            total_in_tokens += response.usage.input_tokens
-            total_out_tokens += response.usage.output_tokens
-
+    # Call 2: Send local `check_school_db` result back and enforce Strict 17-Field JSON Schema in one step
     response = client.responses.create(
         model=model,
         reasoning={"effort": "low"},
         instructions=instructions,
         previous_response_id=response.id,
-        input="Output the final internship review using the required JSON schema.",
+        input=tool_outputs or "Output the final internship review using the required JSON schema.",
         text={"format": {"type": "json_schema", **OUTPUT_SCHEMA}},
     )
     if response.usage:
