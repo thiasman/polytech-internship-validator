@@ -99,7 +99,9 @@ def run_agent_turn(user_message: str, current_form_text: str = "", history: list
     """Executes one conversational turn of `internship_agent` via `Runner.run_sync`."""
     global _LAST_TOOL_PIPELINE_RESULT
     _LAST_TOOL_PIPELINE_RESULT = None
-    load_env_key()
+    api_key = load_env_key()
+    if api_key:
+        os.environ["OPENAI_API_KEY"] = api_key
     history = history or []
 
     # Build multi-turn input list for `Runner.run_sync`
