@@ -10,7 +10,7 @@ from pypdf import PdfReader
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SYLLABUS_PATH = os.path.join(BASE_DIR, "syllabus_electronics_optics.md")
-_VECTOR_STORE_ID = None
+DEFAULT_VECTOR_STORE_ID = "vs_6ae6feb725c0819190be95011bf81cc3"
 
 
 # ==============================================================================
@@ -117,26 +117,15 @@ OUTPUT_SCHEMA = {
 
 
 def call_openai_luna(redacted_text: str, raw_text: str, page_count: int, api_key: str, model: str = "gpt-6-luna") -> dict:
-    """Runs OpenAI `gpt-6-luna` Responses API with check_school_db, web_search, and file_search."""
-    global _VECTOR_STORE_ID
+    """Runs OpenAI `gpt-6-luna` Responses API in 2 calls with check_school_db, web_search, and file_search."""
     from openai import OpenAI
 
     client = OpenAI(api_key=api_key)
-    if not _VECTOR_STORE_ID:
-        vs_cache = os.path.join(BASE_DIR, ".vector_store_id")
-        if os.path.exists(vs_cache):
-            _VECTOR_STORE_ID = open(vs_cache, encoding="utf-8").read().strip()
-        else:
-            vs = client.vector_stores.create(name="Polytech_5A_Syllabus")
-            with open(SYLLABUS_PATH, "rb") as f:
-                client.vector_stores.files.upload_and_poll(vector_store_id=vs.id, file=f)
-            _VECTOR_STORE_ID = vs.id
-            with open(vs_cache, "w", encoding="utf-8") as f:
-                f.write(_VECTOR_STORE_ID)
+    vector_store_id = os.environ.get("OPENAI_VECTOR_STORE_ID", DEFAULT_VECTOR_STORE_ID)
 
     tools = [
         {"type": "web_search"},
-        {"type": "file_search", "vector_store_ids": [_VECTOR_STORE_ID]},
+        {"type": "file_search", "vector_store_ids": [vector_store_id]},
         {
             "type": "function",
             "name": "check_school_db",
@@ -189,7 +178,7 @@ def call_openai_luna(redacted_text: str, raw_text: str, page_count: int, api_key
             tool_outputs.append({"type": "function_call_output", "call_id": item.call_id, "output": json.dumps(db_out)})
 
     steps.append(
-        f"Step 3 — Tools 2 & 3 (`web_search` + `file_search` on `{_VECTOR_STORE_ID}`): Verified host company R&D profile and compared tasks against 5A Electronics & Optics syllabus."
+        f"Step 3 — Tools 2 & 3 (`web_search` + `file_search` on `{vector_store_id}`): Verified host company R&D profile and compared tasks against 5A Electronics & Optics syllabus."
     )
 
     # Call 2: Send local `check_school_db` result back and enforce the Strict 17-Field JSON Schema in one step
@@ -218,10 +207,12 @@ def load_env_key() -> str:
     env_path = os.path.join(BASE_DIR, ".env")
     if os.path.exists(env_path):
         for line in open(env_path, encoding="utf-8"):
-            if line.strip().startswith("OPENAI_API_KEY="):
-                val = line.split("=", 1)[1].strip().strip("\"'")
-                if val:
-                    return val
+            s = line.strip()
+            if s and not s.startswith("#") and "=" in s:
+                k, v = s.split("=", 1)
+                v = v.strip().strip("\"'")
+                if v:
+                    os.environ[k.strip()] = v
     return os.environ.get("OPENAI_API_KEY", "")
 
 

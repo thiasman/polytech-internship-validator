@@ -19,8 +19,8 @@ sys.path.insert(0, ROOT_DIR)
 
 from openai import OpenAI
 from openai_engine import (
+    DEFAULT_VECTOR_STORE_ID,
     OUTPUT_SCHEMA,
-    SYLLABUS_PATH,
     check_school_db,
     extract_text_from_pdf_bytes,
     load_env_key,
@@ -33,15 +33,7 @@ OUTPUT_PRICE_PER_1M_EUR = 1.50
 
 
 def get_cached_vector_store(client: OpenAI) -> str:
-    vs_cache = os.path.join(ROOT_DIR, ".vector_store_id")
-    if os.path.exists(vs_cache):
-        return open(vs_cache, encoding="utf-8").read().strip()
-    vs = client.vector_stores.create(name="Polytech_5A_Syllabus")
-    with open(SYLLABUS_PATH, "rb") as f:
-        client.vector_stores.files.upload_and_poll(vector_store_id=vs.id, file=f)
-    with open(vs_cache, "w", encoding="utf-8") as f:
-        f.write(vs.id)
-    return vs.id
+    return os.environ.get("OPENAI_VECTOR_STORE_ID", DEFAULT_VECTOR_STORE_ID)
 
 
 def run_luna_pipeline(client: OpenAI, vs_id: str, user_input_payload, model: str = "gpt-6-luna") -> dict:
